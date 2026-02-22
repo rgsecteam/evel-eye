@@ -1,0 +1,75 @@
+body {
+    background: #0f0c29;
+    background: linear-gradient(to right, #24243e, #302b63, #0f0c29);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    overflow: hidden;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.insta-logo {
+    width: 60px;
+    filter: drop-shadow(0 0 8px #ff0050);
+    margin-bottom: 10px;
+}
+
+h1 {
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+    margin-bottom: 5px;
+}
+input[type="text"] {
+  /* Your styles here */
+  background: transparent;
+  width: 70%;
+  height: 30px;
+  color: #fff;
+  outline: none;
+  border: solid 1px #bbb;
+  border-top-left-radius: 13px;
+  border-bottom-right-radius: 14px;
+  border-bottom-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+input[type="text"]:focus {
+    box-shadow: 0 0 10px #24243e, 0 0 15px #24243e;
+    box-shadow: 0 0 10px #302b63, 0 0 15px #302b63;
+    box-shadow: 0 0 10px #0f0c29, 0 0 15px #0f0c29;
+}
+
+h1 span {
+    color: #ff0050;
+    text-shadow: 0 0 10px #ff0050;
+}
+
+.cyperpunk-btn {
+    background: transparent;
+    border: 2px solid #00f2fe;
+    color: #00f2fe;
+    padding: 12px 24px;
+    margin-top: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+}
+
+.cyperpunk-btn:hover {
+    background: #00f2fe;
+    color: black;
+    box-shadow: 0 0 20px #00f2fe;
+}

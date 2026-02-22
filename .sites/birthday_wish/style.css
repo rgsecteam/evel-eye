@@ -1,0 +1,168 @@
+:root {
+    --neon-blue: #00f2ff;
+    --neon-pink: #ff007a;
+    --gold: #ffd700;
+}
+
+body {
+    margin: 0;
+    background: #0a0a0c;
+    color: white;
+    font-family: 'Orbitron', sans-serif;
+    overflow: hidden;
+}
+
+.overlay {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle, #111 0%, #000 100%);
+}
+
+#start-btn {
+    padding: 20px 40px;
+    background: transparent;
+    border: 2px solid var(--neon-blue);
+    color: var(--neon-blue);
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--neon-blue);
+    transition: 0.3s;
+}
+
+#start-btn:hover {
+    background: var(--neon-blue);
+    border: solid 2px var(--neon-blue);
+    color: #000;
+}
+
+.hidden { display: none; }
+
+/* The Cake */
+.cake-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    /* This ensures the container never exceeds the screen width */
+    width: 90%; 
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cake {
+    position: relative;
+    width: 200px;
+    height: 150px;
+    /* Keeps the cake centered even if text above it wraps */
+    margin: 0 auto; 
+    filter: drop-shadow(0 0 15px rgba(255, 0, 122, 0.4));
+}
+
+.tier {
+    background: linear-gradient(145deg, #1a1a1a, #000);
+    border: 2px solid var(--neon-pink);
+    border-radius: 10px;
+    margin: 0 auto;
+    box-shadow: inset 0 0 10px var(--neon-pink);
+}
+
+.tier-top { 
+    width: 120px; 
+    height: 60px; 
+    position: relative;
+    z-index: 2;
+}
+
+.tier-bottom { 
+    width: 180px; 
+    height: 80px; 
+    margin-top: -5px; /* Overlaps slightly for a 3D look */
+    z-index: 1;
+}
+
+.cake-container::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 10px;
+    background: var(--neon-blue);
+    filter: blur(15px);
+    border-radius: 50%;
+    opacity: 0.5;
+}
+
+.candle {
+    width: 10px;
+    height: 40px;
+    background: var(--gold);
+    margin: 0 auto;
+    position: relative;
+}
+
+.flame {
+    width: 15px;
+    height: 20px;
+    background: orange;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    position: absolute;
+    top: -25px;
+    left: -2px;
+    box-shadow: 0 0 20px orange;
+    animation: flicker 0.1s infinite alternate;
+}
+
+.balloon {
+    position: absolute;
+    bottom: -100px;
+    width: 45px;
+    height: 55px;
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; /* Balloon shape */
+    opacity: 0.7;
+    animation: floatUp 6s linear forwards;
+}
+
+/* Add a small string to the balloon */
+.balloon::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    width: 2px;
+    height: 20px;
+    background: rgba(255,255,255,0.2);
+}
+
+@keyframes floatUp {
+    to { transform: translateY(-110vh) translateX(50px); }
+}
+
+@keyframes flicker {
+    from { transform: scale(1); opacity: 0.8; }
+    to { transform: scale(1.1); opacity: 1; }
+}
+
+.name-display {
+    text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue);
+    margin-bottom: 40px;
+    /* Responsive font size: Min 1.8rem, Max 3.5rem */
+    font-size: clamp(1.8rem, 8vw, 3.5rem); 
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    /* Allow text to wrap on phones */
+    word-wrap: break-word; 
+    width: 100%;
+    font-weight: 800;
+    background: linear-gradient(to bottom, #fff 20%, var(--neon-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
