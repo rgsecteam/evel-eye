@@ -1,77 +1,102 @@
 #!/bin/bash
 
-# Pakage Status
+# Package Status
 print_status() {
     local label_with_colors="    ${cyan}[${orange}+${cyan}]${nocolor} $1"
     local status=$2
     local total_width=50
 
-    # 1. Remove ANSI color codes to get the "real" visible length
-    # This regex strips everything from \e[ to 'm'
-    local clean_label=$(echo -e "$label_with_colors" | sed 's/\x1b\[[0-9;]*m//g')
+    # Remove ANSI color codes to get the "real" visible length
+    local clean_label
+    clean_label=$(echo -e "$label_with_colors" | sed 's/\x1b\[[0-9;]*m//g')
     local label_len=${#clean_label}
-    
-    # 2. Calculate dots based on visible characters
+
+    # Calculate dots based on visible characters
     local dot_count=$((total_width - label_len))
 
     local dots=""
-    if [ $dot_count -gt 0 ]; then
+    if [ "$dot_count" -gt 0 ]; then
         dots=$(printf '%*s' "$dot_count" '' | tr ' ' '.')
     fi
 
-    # 3. Print the original colored label + dots + status
+    # Print the original colored label + dots + status
     printf "%b%s %b\n" "$label_with_colors" "$dots" "$status"
 }
 
 check_requirements() {
     local requirements=("$@")
     local missing=0
-    
+
     for pkg in "${requirements[@]}"; do
-        # Check if command exists or if the binary exists in the current directory
+        # Check if command exists or binary exists in current directory
         if command -v "$pkg" >/dev/null 2>&1 || [[ -f "./$pkg" ]]; then
             print_status "${white}$pkg" "${green}Installed${nocolor}"
             sleep 0.4
         else
             print_status "${white}$pkg" "${red}Missing${nocolor}"
             missing=$((missing + 1))
-            
-            # AUTOMATIC INSTALLATION START
+
             echo -e "    ${red}[${orange}!${red}]${white} $pkg is required. Starting automatic installation...${nocolor}"
-            
-            # Special Case: Cloudflared
+
+            # ── Special Case: cloudflared ──────────────────────────────────
             if [[ "$pkg" == "cloudflared" ]]; then
+                local arch url
                 arch=$(uname -m)
                 case $arch in
-                    *arm*|*Android*) url="cloudflared-linux-arm" ;;
-                    *aarch64*) url="cloudflared-linux-arm64" ;;
-                    *x86_64*) url="cloudflared-linux-amd64" ;;
-                    *) url="cloudflared-linux-386" ;;
+                    *arm*|*Android*)  url="cloudflared-linux-arm" ;;
+                    *aarch64*)        url="cloudflared-linux-arm64" ;;
+                    *x86_64*)         url="cloudflared-linux-amd64" ;;
+                    *)                url="cloudflared-linux-386" ;;
                 esac
-                
-                wget --no-check-certificate "https://github.com/cloudflare/cloudflared/releases/latest/download/$url" -O cloudflared > /dev/null 2>&1
-                chmod +x cloudflared
-                
-            # Standard Packages
+
+                # check wget exit code, not chmod
+                if wget --no-check-certificate \
+                        "https://github.com/cloudflare/cloudflared/releases/latest/download/$url" \
+                        -O cloudflared > /dev/null 2>&1; then
+                    chmod +x cloudflared
+                    echo -e "    ${green}[${white}+${green}]${white} cloudflared installed successfully.${nocolor}"
+                else
+                    echo -e "    ${red}Error: cloudflared download failed. Exiting.${nocolor}"
+                    exit 1
+                fi
+
+            # ── Special Case: lolcat ───────────────────────────────────────
+            # lolcat is not always in apt; try gem first
+            elif [[ "$pkg" == "lolcat" ]]; then
+                local installed=0
+                if command -v gem >/dev/null 2>&1; then
+                    gem install lolcat > /dev/null 2>&1 && installed=1
+                fi
+                if [[ $installed -eq 0 ]]; then
+                    sudo apt-get install -y lolcat > /dev/null 2>&1 && installed=1
+                fi
+                if [[ $installed -eq 1 ]]; then
+                    echo -e "    ${green}[${white}+${green}]${white} lolcat installed successfully.${nocolor}"
+                else
+                    echo -e "    ${red}Error: lolcat installation failed. Exiting.${nocolor}"
+                    exit 1
+                fi
+
+            # ── Standard Packages ──────────────────────────────────────────
             else
+                local install_ok=0
                 if [ "$KERNEL" == "Linux" ]; then
-                    sudo apt update && sudo apt install "$pkg" -y
+                    sudo apt-get update && sudo apt-get install -y "$pkg" && install_ok=1
                 elif [ "$KERNEL" == "macOS" ]; then
-                    brew install "$pkg"
+                    brew install "$pkg" && install_ok=1
                 elif [ "$KERNEL" == "Cygwin" ]; then
-                    apt-cyg install "$pkg"
+                    apt-cyg install "$pkg" && install_ok=1
                 else
                     echo -e "${red}[!] Kernel Not Detected: $KERNEL. Cannot auto-install.${nocolor}"
                     exit 1
                 fi
-            fi
-            
-            # Verify installation success
-            if [[ $? -eq 0 ]]; then
-                echo -e "    ${green}[${white}+${green}]${white} $pkg installed successfully.${nocolor}"
-            else
-                echo -e "    ${red}Error: $pkg installation failed. Exiting.${nocolor}"
-                exit 1
+
+                if [[ $install_ok -eq 1 ]]; then
+                    echo -e "    ${green}[${white}+${green}]${white} $pkg installed successfully.${nocolor}"
+                else
+                    echo -e "    ${red}Error: $pkg installation failed. Exiting.${nocolor}"
+                    exit 1
+                fi
             fi
             sleep 0.4
         fi
