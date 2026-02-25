@@ -79,7 +79,6 @@
 
 ```bash
 git clone https://github.com/rgsecteam/evil-eye.git
-cd evil-eye
 ```
 
 ### 2. Go to **evil-eye** Directory
