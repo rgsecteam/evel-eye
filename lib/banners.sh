@@ -7,9 +7,9 @@
 version="0.1"
 
 small_banner() {
-    echo -e "    ╔═╗╦  ╦╔═╗╦    ╔═╗╦ ╦╔═╗"
+    echo -e "${cyan}    ╔═╗╦  ╦╔═╗╦    ╔═╗╦ ╦╔═╗"
     echo -e "    ║╣ ╚╗╔╝║╣ ║    ║╣ ╚╦╝║╣ "
-    echo -e "    ╚═╝ ╚╝ ╚═╝╩═╝  ╚═╝ ╩ ╚═╝"
+    echo -e "    ╚═╝ ╚╝ ╚═╝╩═╝  ╚═╝ ╩ ╚═╝${nocolor}"
 }
 
 # banner
