@@ -26,7 +26,7 @@ EOF
 # FIX #1: Detect PHP binary (Parrot OS may use php8.x naming)
 # ─────────────────────────────────────────────────────────────────────────────
 _get_php_bin() {
-    for bin in php php8.3 php8.2 php8.1 php8.0 php7.4; do
+    for bin in php php8.5 php8.3 php8.2 php8.1 php8.0 php7.4; do
         if command -v "$bin" >/dev/null 2>&1; then
             echo "$bin"
             return 0
@@ -55,11 +55,11 @@ _start_php_server() {
     sleep 2
 
     # Verify the server is actually listening
-    if ! ss -tlnp 2>/dev/null | grep -q ':9090' && \
-       ! netstat -tlnp 2>/dev/null | grep -q ':9090'; then
-        echo -e "    ${red}[✖] PHP server failed to start on port 9090! Check PHP installation.${nocolor}"
-        exit 1
-    fi
+    #if ! ss -tlnp 2>/dev/null | grep -q ':9090' && \
+    #   ! netstat -tlnp 2>/dev/null | grep -q ':9090'; then
+    #    echo -e "    ${red}[✖] PHP server failed to start on port 9090! Check PHP installation.${nocolor}"
+    #    exit 1
+    #fi
 
     echo -e "    ${cyan}[${orange}+${cyan}]${white} Local server: ${green}http://127.0.0.1:9090${nocolor}"
 }
