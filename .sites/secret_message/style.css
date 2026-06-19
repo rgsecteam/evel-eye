@@ -1,0 +1,51 @@
+/* Core Styling */
+body.animation-body {
+    background-color: #222; /* Kept your post-login bg color */
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+}
+
+.auto-writing {
+    border: solid 1px #bbb;
+    background: none;
+    width: 90vw;
+    min-height: 120px;
+    height: auto;
+    border-radius: 7px;
+    animation: redblink 2s linear infinite;
+    color: #fff;
+    position: relative;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: opacity 1s ease-in-out;
+}
+
+.auto-writing span {
+    position: absolute;
+    font-size: 1.1rem;
+    font-weight: bold;
+    top: 50%;
+    left: 5%;
+    right: 5%;
+    transform: translateY(-50%);
+    white-space: pre-wrap;
+    word-break: break-word;
+    text-align: left;
+}
+
+/* Red Blink Animation */
+@keyframes redblink {
+    0%, 100% { box-shadow: 0 0 15px #222; }
+    50% { box-shadow: 0 0 15px red, 0 0 25px red; }
+}
+
+/* Desktop Sizing */
+@media (min-width: 768px) {
+    .auto-writing { width: 600px; height: 150px; }
+    .auto-writing span { font-size: 1.6rem; }
+}
