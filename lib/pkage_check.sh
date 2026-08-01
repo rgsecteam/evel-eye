@@ -37,40 +37,74 @@ check_requirements() {
 
             # ── Case 1: cloudflared ──────────────────────────────────
             if [[ "$package" == "cloudflared" ]]; then
-                local arch url
-                arch=$(uname -m)
-                case $arch in
-                    arm* | armv*)  url="cloudflared-linux-arm"   ;;
-                    aarch64*)      url="cloudflared-linux-arm64" ;;
-                    x86_64*)       url="cloudflared-linux-amd64" ;;
-                    *)             url="cloudflared-linux-386" ;;
-                esac
 
-                if wget --no-check-certificate \
-                        "https://github.com/cloudflare/cloudflared/releases/latest/download/$url" \
-                        -O cloudflared > /dev/null 2>&1; then
-                    chmod +x cloudflared
+                if [[ "$OS_NAME" == "Android" ]]; then
+                    # Termux: try pkg first, glibc Linux binaries are not
+                    # reliable on bionic libc.
+                    pkg update -y && pkg install -y cloudflared > /dev/null 2>&1
+
+                elif [[ "$KERNEL" == "Darwin" ]]; then
+                    if command -v brew >/dev/null 2>&1; then
+                        brew install cloudflared > /dev/null 2>&1
+                    else
+                        local mac_arch mac_url
+                        mac_arch=$(uname -m)
+                        case $mac_arch in
+                            arm64*) mac_url="cloudflared-darwin-arm64.tgz" ;;
+                            *)      mac_url="cloudflared-darwin-amd64.tgz" ;;
+                        esac
+                        if wget "https://github.com/cloudflare/cloudflared/releases/latest/download/$mac_url" \
+                                -O cloudflared.tgz > /dev/null 2>&1 \
+                           && tar -xzf cloudflared.tgz -C . > /dev/null 2>&1; then
+                            chmod +x cloudflared
+                            rm -f cloudflared.tgz
+                        fi
+                    fi
+
+                else
+                    # Linux
+                    local arch url
+                    arch=$(uname -m)
+                    case $arch in
+                        aarch64*)      url="cloudflared-linux-arm64" ;;
+                        arm* | armv*)  url="cloudflared-linux-arm"   ;;
+                        x86_64*)       url="cloudflared-linux-amd64" ;;
+                        *)             url="cloudflared-linux-386" ;;
+                    esac
+
+                    wget "https://github.com/cloudflare/cloudflared/releases/latest/download/$url" \
+                        -O cloudflared > /dev/null 2>&1
+                    chmod +x cloudflared 2>/dev/null
+                fi
+
+                # Validate the binary actually works, regardless of which
+                # branch installed it. This catches broken downloads
+                # (HTML error pages, truncated files, wrong arch, etc.)
+                if command -v cloudflared >/dev/null 2>&1; then
+                    echo -e "    ${green}[${white}+${green}]${white} cloudflared installed successfully.${nocolor}"
+                elif [[ -f "./cloudflared" ]] && ./cloudflared --version > /dev/null 2>&1; then
                     echo -e "    ${green}[${white}+${green}]${white} cloudflared installed successfully.${nocolor}"
                 else
-                    echo -e "    ${red}Error: cloudflared download failed. Exiting.${nocolor}"
+                    echo -e "    ${red}Error: cloudflared download/installation failed. Exiting.${nocolor}"
+                    rm -f cloudflared cloudflared.tgz
                     ((missing++))
                 fi
 
             # ── Case 2: lolcat ───────────────────────────────────────
             elif [[ "$package" == "lolcat" ]]; then
-                     
+
                 if [[ "$OS_NAME" == "Android" ]]; then
                     echo -e "    ${cyan}[${white}*${cyan}]${white} Skipping lolcat installation (Android detected).${nocolor}"
                     sleep 0.2
                 else
                     # Linux / macOS
                     if [[ "$KERNEL" == "Linux" ]]; then
-                        apt update && apt install -y lolcat > /dev/null 2>&1
+                        sudo apt update && sudo apt install -y lolcat > /dev/null 2>&1
                     elif [[ "$KERNEL" == "Darwin" ]]; then
                         brew install lolcat > /dev/null 2>&1
                     fi
 
-                    # apt/brew gem
+                    # apt/brew gem fallback
                     if ! command -v lolcat >/dev/null 2>&1; then
                         echo -e "    ${cyan}[${white}*${cyan}]${white} Trying gem install lolcat as fallback...${nocolor}"
                         gem install lolcat > /dev/null 2>&1
@@ -108,7 +142,7 @@ check_requirements() {
 
     # package install fail
     if [[ "$missing" -gt 0 ]]; then
-        echo -e "\n    ${red}[✗] $missing package(s) could not be installed. Exiting.${nocolor}"
+        echo -e "\n    ${red}[✗] $missing packages could not be installed. Exiting.${nocolor}"
         exit 1
     fi
 }

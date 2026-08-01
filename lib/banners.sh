@@ -4,7 +4,7 @@
 # unless colors are pre-defined.
 
 # Version
-version="0.2"
+version="0.3"
 
 small_banner() {
     echo -e "${cyan}    ╔═╗╦  ╦╔═╗╦    ╔═╗╦ ╦╔═╗"
